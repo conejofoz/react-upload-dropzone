@@ -14,8 +14,19 @@ export const Form = ()=>{
 
     }
 
-    const handleSubmit = ()=>{
+    const handleSubmit = async ()=>{
+        if(selectedFile){
+            const formData = new FormData();
+            formData.append('file', selectedFile);
 
+            const req = await fetch('https://b7web.com.br/uploadtest/', {
+                method: 'POST',
+                body: formData
+            });
+
+            const json = await req.json();
+            console.log(json);
+        }
     }
 
     return (
