@@ -1,10 +1,19 @@
 "use client"
 
-import { ChangeEvent, useState } from "react"
 import axios from 'axios'
+import { ChangeEvent, useEffect, useState } from "react"
+import { useDropzone } from 'react-dropzone'
+
 
 
 export const Form = ()=>{
+    const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
+        maxFiles: 10,
+        accept:{
+            'image/jpeg': ['.jpg']
+        }
+    });
+
     const [selectedFile, setSelectedFile] = useState<File>();
     const [legend, setLegend] = useState('');
     const [progressUpload, setProgressUpload] = useState(0);
@@ -44,8 +53,41 @@ export const Form = ()=>{
         }
     }
 
+
+    const handleDropzoneSubmit = async ()=>{
+            setProgressUpload(0);
+            const formData = new FormData();
+            formData.append('file', acceptedFiles[0]);
+            formData.append('legend', legend)
+
+            const req = await axios.post('https://b7web.com.br/uploadtest/', formData, {
+                onUploadProgress:(progressEvent)=>{
+                    if(progressEvent.total){
+                        const pct = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
+                        setProgressUpload(pct);
+                    }
+                }
+            })
+            console.log(req.data)
+    }
+
+
+
+    useEffect(()=>{
+        console.log(acceptedFiles)
+        if(acceptedFiles.length > 0){
+            handleDropzoneSubmit();
+        }
+    }, [acceptedFiles]);
+
     return (
         <div>
+            <div className='bg-gray-400 p-5 h-96' {...getRootProps()}>
+                <input {...getInputProps()} />
+            </div>
+            <div>Arquivos: {acceptedFiles.length}</div>
+
+
             <input type="file" className="block my-3" onChange={handleFileChange} />
             <input type="text" className="text-black" value={legend} onChange={e => setLegend(e.target.value)}  />
             <button className="block my-3" onClick={handleSubmit}>Enviar</button>
