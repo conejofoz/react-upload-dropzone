@@ -6,6 +6,7 @@ import { useDropzone } from 'react-dropzone'
 
 
 
+
 export const Form = ()=>{
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
         maxFiles: 10,
@@ -17,6 +18,7 @@ export const Form = ()=>{
     const [selectedFile, setSelectedFile] = useState<File>();
     const [legend, setLegend] = useState('');
     const [progressUpload, setProgressUpload] = useState(0);
+    const [photoString, setPhotoString] = useState('');
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>)=>{
         /* Não importa se foi escolhido só um arquivo, vai vim um array de files e dentro cada índice vem um file */
@@ -55,20 +57,23 @@ export const Form = ()=>{
 
 
     const handleDropzoneSubmit = async ()=>{
-            setProgressUpload(0);
-            const formData = new FormData();
-            formData.append('file', acceptedFiles[0]);
-            formData.append('legend', legend)
+        /* Preview da imagem */
+        setPhotoString(URL.createObjectURL(acceptedFiles[0]));
+        /* end preview da imagem */
+        setProgressUpload(0);
+        const formData = new FormData();
+        formData.append('file', acceptedFiles[0]);
+        formData.append('legend', legend)
 
-            const req = await axios.post('https://b7web.com.br/uploadtest/', formData, {
-                onUploadProgress:(progressEvent)=>{
-                    if(progressEvent.total){
-                        const pct = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
-                        setProgressUpload(pct);
-                    }
+        const req = await axios.post('https://b7web.com.br/uploadtest/', formData, {
+            onUploadProgress:(progressEvent)=>{
+                if(progressEvent.total){
+                    const pct = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
+                    setProgressUpload(pct);
                 }
-            })
-            console.log(req.data)
+            }
+        })
+        console.log(req.data)
     }
 
 
@@ -99,6 +104,10 @@ export const Form = ()=>{
             <div>
                 {progressUpload} de 100%
             </div>
+
+            {photoString &&
+                <img src={photoString} className='max-w-80' alt="" />
+            }
         </div>
     )
 }
