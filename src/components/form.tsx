@@ -62,8 +62,11 @@ export const Form = ()=>{
         /* end preview da imagem */
         setProgressUpload(0);
         const formData = new FormData();
-        formData.append('file', acceptedFiles[0]);
         formData.append('legend', legend)
+        //formData.append('file', acceptedFiles[0]);
+        for(let i in acceptedFiles){
+            formData.append(`file[${i}]`, acceptedFiles[i]);
+        }
 
         const req = await axios.post('https://b7web.com.br/uploadtest/', formData, {
             onUploadProgress:(progressEvent)=>{
